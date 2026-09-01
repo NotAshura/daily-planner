@@ -142,8 +142,24 @@ export default function App() {
   const addTask = (title: string) =>
     setTasks((prev) => [
       ...prev,
-      { id: uid(), title, category: "other", recurring: false, date: today },
+      {
+        id: uid(),
+        title,
+        category: "other",
+        recurring: false,
+        date: today,
+        order: prev.reduce((max, task) => Math.max(max, task.order ?? 0), 0) + 1,
+      },
     ]);
+
+  /** Writes the dragged order back; tasks outside the checklist keep their position. */
+  const reorderTasks = (ids: string[]) =>
+    setTasks((prev) =>
+      prev.map((task) => {
+        const index = ids.indexOf(task.id);
+        return index === -1 ? task : { ...task, order: index };
+      })
+    );
 
   const patchTask = (id: string, patch: Partial<Task>) =>
     setTasks((prev) =>
@@ -283,6 +299,7 @@ export default function App() {
             locale={locale}
             t={t}
             onAddTask={addTask}
+            onReorderTasks={reorderTasks}
             onToggleDone={toggleDone}
             onOpenTask={setEditingTaskId}
             onCreateBlock={createBlock}

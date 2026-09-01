@@ -14,6 +14,7 @@ interface DailyChecklistProps {
   onToggle: (id: string) => void;
   onAdd: (title: string) => void;
   onOpen: (id: string) => void;
+  onReorder: (ids: string[]) => void;
   onTaskPointerDown: (e: React.PointerEvent, task: Task) => void;
 }
 
@@ -26,15 +27,51 @@ export default function DailyChecklist({
   onToggle,
   onAdd,
   onOpen,
+  onReorder,
   onTaskPointerDown,
 }: DailyChecklistProps) {
   const [draft, setDraft] = useState("");
+  const [drag, setDrag] = useState<{ id: string; from: number; startY: number; rowHeight: number } | null>(
+    null
+  );
+  const [dragY, setDragY] = useState(0);
 
   const submit = () => {
     const title = draft.trim();
     if (!title) return;
     onAdd(title);
     setDraft("");
+  };
+
+  const clamp = (value: number, max: number) => Math.min(max, Math.max(0, value));
+  // Derived from the travelled distance, so the shifting rows cannot influence the target.
+  const targetIndex = drag ? clamp(drag.from + Math.round(dragY / drag.rowHeight), tasks.length - 1) : -1;
+
+  const startReorder = (e: React.PointerEvent, index: number, id: string) => {
+    e.stopPropagation();
+    const row = e.currentTarget.closest("li");
+    if (!row) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDrag({ id, from: index, startY: e.clientY, rowHeight: row.getBoundingClientRect().height + 8 });
+    setDragY(0);
+  };
+
+  const endReorder = () => {
+    if (drag && targetIndex !== drag.from) {
+      const ids = tasks.map((task) => task.id);
+      ids.splice(targetIndex, 0, ids.splice(drag.from, 1)[0]);
+      onReorder(ids);
+    }
+    setDrag(null);
+    setDragY(0);
+  };
+
+  /** How far a row slides while another one is dragged past it. */
+  const shiftOf = (index: number) => {
+    if (!drag || index === drag.from) return 0;
+    if (drag.from < targetIndex && index > drag.from && index <= targetIndex) return -drag.rowHeight;
+    if (drag.from > targetIndex && index >= targetIndex && index < drag.from) return drag.rowHeight;
+    return 0;
   };
 
   const doneCount = tasks.filter((task) => doneIds.includes(task.id)).length;
@@ -54,16 +91,34 @@ export default function DailyChecklist({
       {tasks.length === 0 ? (
         <p className="text-sm text-muted">{t.checklist.empty}</p>
       ) : (
-        <ul className="space-y-2">
-          {tasks.map((task) => {
+        <ul
+          className="space-y-2"
+          onPointerMove={(e) => drag && setDragY(e.clientY - drag.startY)}
+          onPointerUp={endReorder}
+          onPointerCancel={endReorder}
+        >
+          {tasks.map((task, index) => {
             const done = doneIds.includes(task.id);
+            const dragged = drag?.id === task.id;
             return (
               <li
                 key={task.id}
                 onPointerDown={(e) => onTaskPointerDown(e, task)}
-                className="flex touch-none select-none items-center gap-2 rounded-lg border border-line bg-surface-2 p-3"
+                style={{ transform: `translateY(${dragged ? dragY : shiftOf(index)}px)` }}
+                className={`flex touch-none select-none items-center gap-2 rounded-lg border bg-surface-2 p-3 ${
+                  dragged
+                    ? "relative z-10 border-blue-500 shadow-xl shadow-black/30"
+                    : `border-line ${drag ? "transition-transform duration-150" : ""}`
+                }`}
               >
-                <GripVertical size={14} className="shrink-0 cursor-grab text-muted" />
+                <button
+                  onPointerDown={(e) => startReorder(e, index, task.id)}
+                  aria-label={t.checklist.reorder}
+                  title={t.checklist.reorder}
+                  className={`shrink-0 text-muted ${dragged ? "cursor-grabbing" : "cursor-grab"}`}
+                >
+                  <GripVertical size={14} />
+                </button>
 
                 <button
                   onPointerDown={(e) => e.stopPropagation()}
@@ -80,7 +135,7 @@ export default function DailyChecklist({
                 </button>
 
                 <button
-                  onClick={() => onOpen(task.id)}
+                  onDoubleClick={() => onOpen(task.id)}
                   title={t.checklist.openDetails}
                   className={`flex min-w-0 flex-1 items-center gap-2 text-left ${
                     done ? "text-muted line-through" : ""

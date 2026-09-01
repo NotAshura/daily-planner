@@ -42,8 +42,10 @@ const de = {
     empty: "Noch keine Aufgaben. Lege deine wiederkehrenden Aufgaben an.",
     progress: (done: number, total: number) => `${done} von ${total} erledigt`,
     hasNote: "Notiz vorhanden",
-    openDetails: "Details öffnen",
-    dragHint: "Aufgabe nach rechts in den Tagesplan ziehen, um einen Zeitblock anzulegen.",
+    openDetails: "Doppelklick für Details",
+    reorder: "Zum Sortieren ziehen",
+    dragHint:
+      "Aufgabe nach rechts in den Tagesplan ziehen legt einen Zeitblock an. Am Griff ziehen sortiert die Liste, Doppelklick öffnet die Aufgabe. Verplante Aufgaben stehen nach Uhrzeit oben.",
     planned: "Termin",
   },
   schedule: {
@@ -236,8 +238,10 @@ const en: Dict = {
     empty: "No tasks yet. Add the ones you want to repeat every day.",
     progress: (done: number, total: number) => `${done} of ${total} done`,
     hasNote: "Has a note",
-    openDetails: "Open details",
-    dragHint: "Drag a task into the schedule on the right to create a time block.",
+    openDetails: "Double click for details",
+    reorder: "Drag to reorder",
+    dragHint:
+      "Drag a task into the schedule on the right to create a time block. Drag the handle to reorder, double click to open a task. Scheduled tasks are listed by time.",
     planned: "Appointment",
   },
   schedule: {

@@ -10,6 +10,8 @@ export const DEFAULT_DURATION = 30;
 
 const SNAP = 15;
 const MIN_DURATION = 15;
+/** A click must not look like a drag, so the ghost only appears after this many pixels. */
+const DRAG_THRESHOLD_PX = 8;
 
 export interface DraftRange {
   date: string;
@@ -18,7 +20,7 @@ export interface DraftRange {
 }
 
 type DragState =
-  | { kind: "create"; taskId: string }
+  | { kind: "create"; taskId: string; title: string; originX: number; originY: number; armed: boolean }
   | { kind: "move"; blockId: string; offsetMin: number }
   | { kind: "resize"; blockId: string }
   | { kind: "draw"; date: string; anchor: number };
@@ -70,7 +72,12 @@ export function useCalendarDrag({ days, blocks, onCreateBlock, onUpdateBlock, on
       e.preventDefault();
 
       if (drag.kind === "create") {
-        setGhost((prev) => (prev ? { ...prev, x: e.clientX, y: e.clientY } : prev));
+        if (!drag.armed) {
+          const moved = Math.hypot(e.clientX - drag.originX, e.clientY - drag.originY);
+          if (moved < DRAG_THRESHOLD_PX) return;
+          drag.armed = true;
+        }
+        setGhost({ x: e.clientX, y: e.clientY, title: drag.title });
         return;
       }
 
@@ -113,6 +120,7 @@ export function useCalendarDrag({ days, blocks, onCreateBlock, onUpdateBlock, on
       setGhost(null);
 
       if (drag?.kind === "create") {
+        if (!drag.armed) return; // a plain click, not a drag
         const slot = slotAt(e.clientX, e.clientY);
         if (!slot) return;
         const start = clamp(snap(slot.minute), START_HOUR * 60, END_HOUR * 60 - DEFAULT_DURATION);
@@ -140,8 +148,14 @@ export function useCalendarDrag({ days, blocks, onCreateBlock, onUpdateBlock, on
     draft,
     clearDraft: () => updateDraft(null),
     startCreate: (e: React.PointerEvent, task: { id: string; title: string }) => {
-      dragRef.current = { kind: "create", taskId: task.id };
-      setGhost({ x: e.clientX, y: e.clientY, title: task.title });
+      dragRef.current = {
+        kind: "create",
+        taskId: task.id,
+        title: task.title,
+        originX: e.clientX,
+        originY: e.clientY,
+        armed: false,
+      };
     },
     startMove: (e: React.PointerEvent, block: Block) => {
       const slot = slotAt(e.clientX, e.clientY);

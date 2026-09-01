@@ -14,6 +14,8 @@ export interface Task {
   recurring: boolean;
   /** Day a one-off task belongs to, even without a time block. Ignored for recurring tasks. */
   date?: string; // yyyy-mm-dd
+  /** Manual position in the checklist; lower comes first. */
+  order?: number;
 }
 
 /** A time block in the calendar. It has no own title/colour – both come from the task. */

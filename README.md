@@ -19,7 +19,10 @@ React + TypeScript + Vite + Tailwind CSS v4.
 - Neue Aufgaben gelten standardmäßig **nur für den heutigen Tag**. Soll die Aufgabe jeden Tag erscheinen, im Detailfenster der Aufgabe *Als tägliche Aufgabe* ankreuzen.
 - Eine Aufgabe nur für heute bleibt den ganzen Tag stehen, auch ohne Zeitblock und auch wenn das Häkchen wieder entfernt wird; am nächsten Tag ist sie weg.
 - Aufgaben hinzufügen, umbenennen, löschen und abhaken.
-- Klick auf eine Aufgabe öffnet ein Detailfenster mit **Notiz** (pro Tag) und **Kategorie**.
+- **Doppelklick** auf eine Aufgabe öffnet ein Detailfenster mit **Notiz** (pro Tag) und **Kategorie**. Ein einfacher Klick tut nichts, damit versehentliches Anklicken nichts auslöst.
+- Am **Griff links** ziehen sortiert die Liste um; die Reihenfolge gilt dauerhaft, also auch an allen weiteren Tagen.
+- Aufgaben mit Zeitblock stehen **chronologisch oben**, alle übrigen darunter in der selbst gewählten Reihenfolge.
+- Eine Aufgabe von der Liste in den Tagesplan ziehen legt einen Zeitblock an – das Vorschaubild erscheint erst, wenn der Zeiger sich wirklich bewegt.
 - Der Erledigt-Status wird pro Datum gespeichert, setzt sich also um Mitternacht automatisch zurück.
 - Zusätzlich zu den wiederkehrenden Aufgaben erscheinen die für diesen Tag **vorgeplanten Termine** in der Liste, jeweils mit ihrer Startzeit.
 

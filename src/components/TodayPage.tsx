@@ -18,6 +18,7 @@ interface TodayPageProps {
   locale: string;
   t: Dict;
   onAddTask: (title: string) => void;
+  onReorderTasks: (ids: string[]) => void;
   onToggleDone: (date: string, taskId: string) => void;
   onOpenTask: (id: string) => void;
   onCreateBlock: (taskId: string, date: string, start: number) => void;
@@ -41,6 +42,7 @@ export default function TodayPage({
   locale,
   t,
   onAddTask,
+  onReorderTasks,
   onToggleDone,
   onOpenTask,
   onCreateBlock,
@@ -74,6 +76,22 @@ export default function TodayPage({
     return map;
   }, [todayBlocks]);
 
+  // Planned tasks run in clock order, everything else keeps the order dragged in the checklist.
+  const orderedTasks = useMemo(() => {
+    const starts = new Map<string, number>();
+    for (const block of todayBlocks) {
+      if (!starts.has(block.taskId)) starts.set(block.taskId, block.start);
+    }
+    return [...checklistTasks].sort((a, b) => {
+      const aStart = starts.get(a.id);
+      const bStart = starts.get(b.id);
+      if (aStart !== undefined && bStart !== undefined) return aStart - bStart;
+      if (aStart !== undefined) return -1;
+      if (bStart !== undefined) return 1;
+      return (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER);
+    });
+  }, [checklistTasks, todayBlocks]);
+
   const closeDialog = () => {
     setPendingRange(null);
     drag.clearDraft();
@@ -94,7 +112,7 @@ export default function TodayPage({
 
       <div className="grid items-start gap-4 lg:grid-cols-2">
         <DailyChecklist
-          tasks={checklistTasks}
+          tasks={orderedTasks}
           doneIds={completions[today] ?? []}
           notes={notes}
           times={times}
@@ -102,6 +120,7 @@ export default function TodayPage({
           onToggle={(id) => onToggleDone(today, id)}
           onAdd={onAddTask}
           onOpen={onOpenTask}
+          onReorder={onReorderTasks}
           onTaskPointerDown={drag.startCreate}
         />
 
