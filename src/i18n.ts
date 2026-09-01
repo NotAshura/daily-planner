@@ -68,6 +68,9 @@ const de = {
     noteLabel: "Notiz",
     notePlaceholder: "z. B. Push Day – hat sich stark angefühlt …",
     noteHint: (date: string) => `Notiz für ${date}`,
+    timeBlocks: (count: number) =>
+      count === 1 ? "Zeitblock an diesem Tag" : `${count} Zeitblöcke an diesem Tag`,
+    blockNotePlaceholder: "Notiz nur zu diesem Zeitblock …",
     doneToday: "Für diesen Tag erledigt",
     deleteTask: "Aufgabe löschen",
     deleteWarning: "Die Aufgabe und alle zugehörigen Zeitblöcke werden entfernt.",
@@ -264,6 +267,9 @@ const en: Dict = {
     noteLabel: "Note",
     notePlaceholder: "e.g. push day – felt strong …",
     noteHint: (date: string) => `Note for ${date}`,
+    timeBlocks: (count: number) =>
+      count === 1 ? "Time block on this day" : `${count} time blocks on this day`,
+    blockNotePlaceholder: "Note for this time block only …",
     doneToday: "Done for this day",
     deleteTask: "Delete task",
     deleteWarning: "The task and all of its time blocks will be removed.",

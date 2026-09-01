@@ -202,6 +202,14 @@ export default function App() {
   const deleteBlock = (id: string) => {
     const removed = blocks.find((block) => block.id === id);
     setBlocks((prev) => prev.filter((block) => block.id !== id));
+    if (removed) {
+      setNotes((prev) => {
+        const day = prev[removed.date];
+        if (!day || !(id in day)) return prev;
+        const rest = Object.fromEntries(Object.entries(day).filter(([key]) => key !== id));
+        return { ...prev, [removed.date]: rest };
+      });
+    }
     // A one-off appointment only exists through its block; checklist tasks have their own day.
     if (removed && blocks.filter((block) => block.taskId === removed.taskId).length === 1) {
       setTasks((prev) =>
@@ -389,12 +397,15 @@ export default function App() {
       {editingTask && (
         <TaskModal
           task={editingTask}
-          note={notes[today]?.[editingTask.id] ?? ""}
+          notes={notes[today] ?? {}}
+          dayBlocks={blocks
+            .filter((block) => block.taskId === editingTask.id && block.date === today)
+            .sort((a, b) => a.start - b.start)}
           done={(completions[today] ?? []).includes(editingTask.id)}
           dateLabel={new Date().toLocaleDateString(locale)}
           t={t}
           onPatch={(patch) => patchTask(editingTask.id, patch)}
-          onNoteChange={(note) => setNote(today, editingTask.id, note)}
+          onNoteChange={(id, note) => setNote(today, id, note)}
           onToggleDone={() => toggleDone(today, editingTask.id)}
           onDelete={() => deleteTask(editingTask.id)}
           onClose={() => setEditingTaskId(null)}

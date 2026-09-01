@@ -2,16 +2,20 @@ import { useEffect } from "react";
 import { Trash2, X } from "lucide-react";
 import type { Dict } from "../i18n";
 import { CATEGORIES, CATEGORY_DOT } from "../lib/categories";
-import type { Category, Task } from "../types";
+import { minToClock } from "../lib/date";
+import type { Block, Category, Task } from "../types";
 
 interface TaskModalProps {
   task: Task;
-  note: string;
+  /** Notes of the shown day, keyed by task id and by block id. */
+  notes: Record<string, string>;
+  /** Time blocks of this task on the shown day, in clock order. */
+  dayBlocks: Block[];
   done: boolean;
   dateLabel: string;
   t: Dict;
   onPatch: (patch: Partial<Task>) => void;
-  onNoteChange: (note: string) => void;
+  onNoteChange: (id: string, note: string) => void;
   onToggleDone: () => void;
   onDelete: () => void;
   onClose: () => void;
@@ -19,7 +23,8 @@ interface TaskModalProps {
 
 export default function TaskModal({
   task,
-  note,
+  notes,
+  dayBlocks,
   done,
   dateLabel,
   t,
@@ -46,7 +51,7 @@ export default function TaskModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md space-y-4 rounded-xl border border-line bg-surface p-6 shadow-xl"
+        className="max-h-[90vh] w-full max-w-md space-y-4 overflow-y-auto rounded-xl border border-line bg-surface p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
@@ -86,14 +91,35 @@ export default function TaskModal({
         <label className="block">
           <span className="text-sm text-muted">{t.taskModal.noteLabel}</span>
           <textarea
-            value={note}
-            onChange={(e) => onNoteChange(e.target.value)}
+            value={notes[task.id] ?? ""}
+            onChange={(e) => onNoteChange(task.id, e.target.value)}
             placeholder={t.taskModal.notePlaceholder}
             rows={4}
             className="mt-1 w-full resize-none rounded-lg border border-line bg-surface-2 p-2 outline-none focus:border-blue-500"
           />
           <span className="text-xs text-muted">{t.taskModal.noteHint(dateLabel)}</span>
         </label>
+
+        {dayBlocks.length > 0 && (
+          <div className="space-y-3 border-t border-line pt-4">
+            <span className="text-sm text-muted">{t.taskModal.timeBlocks(dayBlocks.length)}</span>
+            {dayBlocks.map((block) => {
+              const range = `${minToClock(block.start)}–${minToClock(block.start + block.duration)}`;
+              return (
+                <label key={block.id} className="block">
+                  <span className="font-mono text-xs">{range}</span>
+                  <textarea
+                    value={notes[block.id] ?? ""}
+                    onChange={(e) => onNoteChange(block.id, e.target.value)}
+                    placeholder={t.taskModal.blockNotePlaceholder}
+                    rows={2}
+                    className="mt-1 w-full resize-none rounded-lg border border-line bg-surface-2 p-2 text-sm outline-none focus:border-blue-500"
+                  />
+                </label>
+              );
+            })}
+          </div>
+        )}
 
         <label className="flex items-start gap-2 border-t border-line pt-4 text-sm">
           <input

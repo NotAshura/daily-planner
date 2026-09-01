@@ -20,6 +20,7 @@ React + TypeScript + Vite + Tailwind CSS v4.
 - Eine Aufgabe nur für heute bleibt den ganzen Tag stehen, auch ohne Zeitblock und auch wenn das Häkchen wieder entfernt wird; am nächsten Tag ist sie weg.
 - Aufgaben hinzufügen, umbenennen, löschen und abhaken.
 - **Doppelklick** auf eine Aufgabe öffnet ein Detailfenster mit **Notiz** (pro Tag) und **Kategorie**. Ein einfacher Klick tut nichts, damit versehentliches Anklicken nichts auslöst.
+- Eine Aufgabe darf mehrfach im Tagesplan liegen. Das Detailfenster listet dann **alle Zeitblöcke des Tages** mit ihrer Zeitspanne auf, jeder mit einer **eigenen Notiz** – zusätzlich zur allgemeinen Tagesnotiz. Wird ein Block gelöscht, verschwindet seine Notiz mit.
 - Am **Griff links** ziehen sortiert die Liste um; die Reihenfolge gilt dauerhaft, also auch an allen weiteren Tagen.
 - Aufgaben mit Zeitblock stehen **chronologisch oben**, alle übrigen darunter in der selbst gewählten Reihenfolge.
 - Eine Aufgabe von der Liste in den Tagesplan ziehen legt einen Zeitblock an – das Vorschaubild erscheint erst, wenn der Zeiger sich wirklich bewegt.
