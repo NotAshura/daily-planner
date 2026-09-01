@@ -4,7 +4,7 @@ const de = {
   appName: "Daily Planner",
   nav: {
     today: "Heute",
-    week: "Woche",
+    week: "Kalender",
     notes: "Notizen",
     work: "Arbeitszeit",
     study: "Lernzeit",
@@ -65,7 +65,7 @@ const de = {
     deleteWarning: "Die Aufgabe und alle zugehörigen Zeitblöcke werden entfernt.",
   },
   week: {
-    title: "Wochenplanung",
+    title: "Kalender",
     views: { week: "Woche", month: "Monat", year: "Jahr" },
     calendarWeek: (week: number) => `KW ${week}`,
     prev: "Zurück",
@@ -192,7 +192,7 @@ const en: Dict = {
   appName: "Daily Planner",
   nav: {
     today: "Today",
-    week: "Week",
+    week: "Calendar",
     notes: "Notes",
     work: "Worktime",
     study: "Study time",
@@ -253,7 +253,7 @@ const en: Dict = {
     deleteWarning: "The task and all of its time blocks will be removed.",
   },
   week: {
-    title: "Weekly planning",
+    title: "Calendar",
     views: { week: "Week", month: "Month", year: "Year" },
     calendarWeek: (week: number) => `Week ${week}`,
     prev: "Previous",

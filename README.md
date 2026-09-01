@@ -17,7 +17,7 @@ React + TypeScript + Vite + Tailwind CSS v4.
 ### 2. Kalender / Time-Blocking
 
 - **Heute-Tab**: Checkliste links, Tageskalender rechts. Aufgaben lassen sich direkt aus der Checkliste in den Tagesplan ziehen – ohne Tabwechsel. Der Kalender springt beim Öffnen auf die aktuelle Uhrzeit und zeigt eine Jetzt-Linie.
-- **Wochen-Tab**: 7-Tage-Ansicht zum Vorplanen. Im Kalender einen Zeitraum aufziehen legt direkt einen neuen Termin an (Titel, Kategorie, optional als tägliche Aufgabe).
+- **Kalender-Tab**: 7-Tage-Ansicht zum Vorplanen. Im Kalender einen Zeitraum aufziehen legt direkt einen neuen Termin an (Titel, Kategorie, optional als tägliche Aufgabe).
 - Umschalter **Woche / Monat / Jahr**:
   - *Monat*: klassisches Kalenderraster von Montag bis Sonntag. Angebrochene Wochen werden mit den ausgegrauten Tagen des Vor- bzw. Folgemonats aufgefüllt, jeder Tag zeigt seine Termine als farbige Chips. Klick auf einen Tag öffnet dessen Woche, Klick auf einen Chip die Aufgabe.
   - *Jahr*: alle 12 Monate als Mini-Kalender, Punkte markieren verplante Tage. Klick auf einen Monatsnamen öffnet den Monat, Klick auf einen Tag dessen Woche.
@@ -205,7 +205,7 @@ src/
     DailyChecklist.tsx       Tägliche Checkliste
     TaskModal.tsx            Detailfenster einer Aufgabe
     NewAppointmentDialog.tsx Termin aus einem aufgezogenen Zeitraum anlegen
-    WeeklyPlanner.tsx        Wochenkalender zum Vorplanen
+    WeeklyPlanner.tsx        Kalender-Tab mit Wochen-, Monats- und Jahresansicht
     MonthGrid.tsx            Monatsraster mit Terminen
     YearGrid.tsx             Jahresübersicht mit 12 Mini-Monaten
     NotesPage.tsx            Dauerhafte Notizen (Übersicht + Editor)
