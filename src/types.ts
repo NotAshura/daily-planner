@@ -24,6 +24,8 @@ export interface Task {
   order?: number;
   /** Times that repeat on every day, only used by recurring tasks. */
   schedule?: TaskSlot[];
+  /** Weekdays a recurring task applies to, 0 = Monday. Empty or missing means every day. */
+  weekdays?: number[];
 }
 
 /** A time block in the calendar. It has no own title/colour – both come from the task. */

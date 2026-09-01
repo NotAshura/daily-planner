@@ -58,8 +58,9 @@ const de = {
     title: "Neuer Termin",
     placeholder: "z. B. Büro, Zahnarzt, Meeting …",
     create: "Anlegen",
-    recurring: "Als tägliche Aufgabe",
-    recurringHint: "Erscheint dann jeden Tag in der Checkliste, nicht nur an diesem Termin.",
+    recurring: "Wiederkehrend",
+    recurringHint:
+      "Wiederholt sich wöchentlich an diesem Wochentag. Tage und Zeiten sind danach im Detailfenster änderbar.",
   },
   taskModal: {
     title: "Aufgabe",
@@ -71,10 +72,13 @@ const de = {
     timeBlocks: (count: number) =>
       count === 1 ? "Zeitblock an diesem Tag" : `${count} Zeitblöcke an diesem Tag`,
     blockNotePlaceholder: "Notiz nur zu diesem Zeitblock …",
-    scheduleLabel: "Feste Zeiten (jeden Tag)",
+    scheduleLabel: "Feste Zeiten (an diesen Tagen)",
     addSlot: "Zeit hinzufügen",
     scheduleHint:
-      "Diese Zeiten erscheinen an jedem Tag im Kalender, auch in Zukunft. Im Kalender verschieben ändert die Zeit für alle Tage.",
+      "Diese Zeiten erscheinen an jedem ausgewählten Wochentag im Kalender, auch in Zukunft. Im Kalender verschieben ändert die Zeit für alle diese Tage.",
+    weekdaysLabel: "Wochentage",
+    weekdaysHint:
+      "Die Aufgabe erscheint nur an den markierten Tagen. Sind alle markiert, gilt sie täglich.",
     doneToday: "Für diesen Tag erledigt",
     deleteTask: "Aufgabe löschen",
     deleteWarning: "Die Aufgabe und alle zugehörigen Zeitblöcke werden entfernt.",
@@ -261,8 +265,9 @@ const en: Dict = {
     title: "New appointment",
     placeholder: "e.g. office, dentist, meeting …",
     create: "Create",
-    recurring: "As a daily task",
-    recurringHint: "Shows up in the checklist every day, not only at this appointment.",
+    recurring: "Recurring",
+    recurringHint:
+      "Repeats weekly on this weekday. Days and times can be changed in the task dialog afterwards.",
   },
   taskModal: {
     title: "Task",
@@ -274,10 +279,13 @@ const en: Dict = {
     timeBlocks: (count: number) =>
       count === 1 ? "Time block on this day" : `${count} time blocks on this day`,
     blockNotePlaceholder: "Note for this time block only …",
-    scheduleLabel: "Fixed times (every day)",
+    scheduleLabel: "Fixed times (on these days)",
     addSlot: "Add time",
     scheduleHint:
-      "These times show up on every day in the calendar, future days included. Moving one in the calendar changes it for all days.",
+      "These times show up on every selected weekday, future days included. Moving one in the calendar changes it for all of them.",
+    weekdaysLabel: "Weekdays",
+    weekdaysHint:
+      "The task only appears on the marked days. With all of them marked it runs daily.",
     doneToday: "Done for this day",
     deleteTask: "Delete task",
     deleteWarning: "The task and all of its time blocks will be removed.",

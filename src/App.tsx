@@ -8,8 +8,8 @@ import WeeklyPlanner from "./components/WeeklyPlanner";
 import TimeTracker from "./components/TimeTracker";
 import type { DraftRange } from "./components/calendar/useCalendarDrag";
 import { dictionaries, localeOf } from "./i18n";
-import { startOfWeek, todayKey, uid } from "./lib/date";
-import { expandSchedule, parseSlotBlockId } from "./lib/schedule";
+import { parseKey, startOfWeek, todayKey, uid, weekdayIndex } from "./lib/date";
+import { expandSchedule, parseSlotBlockId, runsOn } from "./lib/schedule";
 import { usePersistentState } from "./lib/storage";
 import type {
   Absence,
@@ -274,7 +274,22 @@ export default function App() {
     range: DraftRange
   ) => {
     const taskId = uid();
-    setTasks((prev) => [...prev, { id: taskId, title, category, recurring }]);
+    // A recurring appointment becomes a weekly series on the day it was drawn.
+    if (recurring) {
+      setTasks((prev) => [
+        ...prev,
+        {
+          id: taskId,
+          title,
+          category,
+          recurring: true,
+          schedule: [{ start: range.start, duration: range.duration }],
+          weekdays: [weekdayIndex(parseKey(range.date))],
+        },
+      ]);
+      return;
+    }
+    setTasks((prev) => [...prev, { id: taskId, title, category, recurring: false }]);
     setBlocks((prev) => [
       ...prev,
       { id: uid(), taskId, date: range.date, start: range.start, duration: range.duration },
@@ -285,8 +300,8 @@ export default function App() {
     const scheduled = new Set(
       blocks.filter((block) => block.date === today).map((block) => block.taskId)
     );
-    return tasks.filter(
-      (task) => task.recurring || scheduled.has(task.id) || task.date === today
+    return tasks.filter((task) =>
+      task.recurring ? runsOn(task, today) : scheduled.has(task.id) || task.date === today
     );
   }, [tasks, blocks, today]);
 

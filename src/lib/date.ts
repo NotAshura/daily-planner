@@ -45,6 +45,11 @@ export function monthGridDays(ref: Date): Date[] {
   return Array.from({ length: weeks * 7 }, (_, i) => addDays(first, i));
 }
 
+/** Monday-based weekday index, 0 = Monday. */
+export function weekdayIndex(d: Date): number {
+  return (d.getDay() + 6) % 7;
+}
+
 export function isoWeekNumber(d: Date): number {  const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   target.setDate(target.getDate() + 3 - ((target.getDay() + 6) % 7));
   const firstThursday = new Date(target.getFullYear(), 0, 4);

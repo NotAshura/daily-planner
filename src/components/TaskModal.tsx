@@ -48,6 +48,15 @@ export default function TaskModal({
       schedule: schedule.map((slot, i) => (i === index ? { ...slot, ...patch } : slot)),
     });
 
+  const toggleWeekday = (day: number) => {
+    const current = task.weekdays?.length ? task.weekdays : [0, 1, 2, 3, 4, 5, 6];
+    const next = current.includes(day)
+      ? current.filter((entry) => entry !== day)
+      : [...current, day].sort((a, b) => a - b);
+    // Deselecting the last day would hide the task completely, so keep it on every day instead.
+    onPatch({ weekdays: next.length ? next : undefined });
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
@@ -105,6 +114,32 @@ export default function TaskModal({
           />
           <span className="text-xs text-muted">{t.taskModal.noteHint(dateLabel)}</span>
         </label>
+
+        {task.recurring && (
+          <div className="space-y-2 border-t border-line pt-4">
+            <span className="text-sm text-muted">{t.taskModal.weekdaysLabel}</span>
+
+            <div className="flex flex-wrap gap-1">
+              {t.weekdaysShort.map((label, day) => {
+                const active = !task.weekdays?.length || task.weekdays.includes(day);
+                return (
+                  <button
+                    key={label}
+                    onClick={() => toggleWeekday(day)}
+                    aria-pressed={active}
+                    className={`w-10 rounded-lg border py-1.5 text-xs ${
+                      active ? "border-blue-500 bg-blue-500/10" : "border-line text-muted hover:bg-surface-2"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <p className="text-xs leading-relaxed text-muted">{t.taskModal.weekdaysHint}</p>
+          </div>
+        )}
 
         {task.recurring && (
           <div className="space-y-2 border-t border-line pt-4">
