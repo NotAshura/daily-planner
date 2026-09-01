@@ -71,6 +71,10 @@ const de = {
     timeBlocks: (count: number) =>
       count === 1 ? "Zeitblock an diesem Tag" : `${count} Zeitblöcke an diesem Tag`,
     blockNotePlaceholder: "Notiz nur zu diesem Zeitblock …",
+    scheduleLabel: "Feste Zeiten (jeden Tag)",
+    addSlot: "Zeit hinzufügen",
+    scheduleHint:
+      "Diese Zeiten erscheinen an jedem Tag im Kalender, auch in Zukunft. Im Kalender verschieben ändert die Zeit für alle Tage.",
     doneToday: "Für diesen Tag erledigt",
     deleteTask: "Aufgabe löschen",
     deleteWarning: "Die Aufgabe und alle zugehörigen Zeitblöcke werden entfernt.",
@@ -270,6 +274,10 @@ const en: Dict = {
     timeBlocks: (count: number) =>
       count === 1 ? "Time block on this day" : `${count} time blocks on this day`,
     blockNotePlaceholder: "Note for this time block only …",
+    scheduleLabel: "Fixed times (every day)",
+    addSlot: "Add time",
+    scheduleHint:
+      "These times show up on every day in the calendar, future days included. Moving one in the calendar changes it for all days.",
     doneToday: "Done for this day",
     deleteTask: "Delete task",
     deleteWarning: "The task and all of its time blocks will be removed.",

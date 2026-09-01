@@ -9,6 +9,7 @@ import {
   startOfMonth,
   startOfWeek,
 } from "../lib/date";
+import { expandSchedule } from "../lib/schedule";
 import type { Block, Category, Completions, Task } from "../types";
 import CalendarGrid from "./calendar/CalendarGrid";
 import DragGhost from "./calendar/DragGhost";
@@ -66,9 +67,11 @@ export default function WeeklyPlanner({
   );
   const dayKeys = useMemo(() => days.map(dateKey), [days]);
 
+  const weekBlocks = useMemo(() => expandSchedule(tasks, blocks, dayKeys), [tasks, blocks, dayKeys]);
+
   const drag = useCalendarDrag({
     days: dayKeys,
-    blocks,
+    blocks: weekBlocks,
     onCreateBlock: () => undefined,
     onUpdateBlock,
     onDraw: setPendingRange,
@@ -165,7 +168,7 @@ export default function WeeklyPlanner({
       {view === "week" && (
         <CalendarGrid
           days={days}
-          blocks={blocks}
+          blocks={weekBlocks}
           tasks={tasks}
           completions={completions}
           draft={drag.draft}

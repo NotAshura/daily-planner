@@ -21,6 +21,8 @@ React + TypeScript + Vite + Tailwind CSS v4.
 - Aufgaben hinzufügen, umbenennen, löschen und abhaken.
 - **Doppelklick** auf eine Aufgabe öffnet ein Detailfenster mit **Notiz** (pro Tag) und **Kategorie**. Ein einfacher Klick tut nichts, damit versehentliches Anklicken nichts auslöst.
 - Eine Aufgabe darf mehrfach im Tagesplan liegen. Das Detailfenster listet dann **alle Zeitblöcke des Tages** mit ihrer Zeitspanne auf, jeder mit einer **eigenen Notiz** – zusätzlich zur allgemeinen Tagesnotiz. Wird ein Block gelöscht, verschwindet seine Notiz mit.
+- In der Liste steht hinter jeder Aufgabe die **volle Zeitspanne** (z. B. `08:00–09:00`), bei mehreren Terminen untereinander – die Zeile wächst entsprechend mit.
+- **Wiederkehrende Zeiten:** Zieht man eine tägliche Aufgabe in den Kalender, gilt diese Zeit ab sofort an **jedem** Tag und ist damit auch morgen und nächste Woche schon sichtbar. Im Detailfenster lassen sich unter *Feste Zeiten* beliebig viele solcher Zeiten eintragen, ändern und entfernen. Ein solcher Block im Kalender verschoben oder gelöscht wirkt auf alle Tage.
 - Am **Griff links** ziehen sortiert die Liste um; die Reihenfolge gilt dauerhaft, also auch an allen weiteren Tagen.
 - Aufgaben mit Zeitblock stehen **chronologisch oben**, alle übrigen darunter in der selbst gewählten Reihenfolge.
 - Eine Aufgabe von der Liste in den Tagesplan ziehen legt einen Zeitblock an – das Vorschaubild erscheint erst, wenn der Zeiger sich wirklich bewegt.
@@ -245,6 +247,7 @@ src/
   i18n.ts                    Übersetzungen (de/en)
   lib/
     date.ts                  Datums- und Zeit-Hilfsfunktionen
+    schedule.ts              Rollt die festen Zeiten wiederkehrender Aufgaben auf Tage aus
     storage.ts               localStorage-gebundener State
     excel.ts                 Excel-Export (SpreadsheetML)
     worktime.ts              Netto-Arbeitszeit eines Eintrags

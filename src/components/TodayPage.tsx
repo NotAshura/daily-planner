@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type { Dict } from "../i18n";
 import { formatHours, minToClock, parseKey } from "../lib/date";
+import { expandSchedule } from "../lib/schedule";
 import type { Block, Category, Completions, Task } from "../types";
 import CalendarGrid from "./calendar/CalendarGrid";
 import DragGhost from "./calendar/DragGhost";
@@ -55,23 +56,31 @@ export default function TodayPage({
   const days = useMemo(() => [parseKey(today)], [today]);
   const dayKeys = useMemo(() => [today], [today]);
 
+  // Repeating slots of recurring tasks behave like blocks in the calendar.
+  const dayBlocks = useMemo(
+    () => expandSchedule(tasks, blocks, dayKeys),
+    [tasks, blocks, dayKeys]
+  );
+
   const drag = useCalendarDrag({
     days: dayKeys,
-    blocks,
+    blocks: dayBlocks,
     onCreateBlock,
     onUpdateBlock,
     onDraw: setPendingRange,
   });
 
   const todayBlocks = useMemo(
-    () => blocks.filter((block) => block.date === today).sort((a, b) => a.start - b.start),
-    [blocks, today]
+    () => dayBlocks.filter((block) => block.date === today).sort((a, b) => a.start - b.start),
+    [dayBlocks, today]
   );
 
-  const times = useMemo(() => {
-    const map: Record<string, string> = {};
+  const ranges = useMemo(() => {
+    const map: Record<string, string[]> = {};
     for (const block of todayBlocks) {
-      map[block.taskId] ??= minToClock(block.start);
+      (map[block.taskId] ??= []).push(
+        `${minToClock(block.start)}\u2013${minToClock(block.start + block.duration)}`
+      );
     }
     return map;
   }, [todayBlocks]);
@@ -115,7 +124,7 @@ export default function TodayPage({
           tasks={orderedTasks}
           doneIds={completions[today] ?? []}
           notes={notes}
-          times={times}
+          ranges={ranges}
           t={t}
           onToggle={(id) => onToggleDone(today, id)}
           onAdd={onAddTask}
@@ -136,7 +145,7 @@ export default function TodayPage({
 
           <CalendarGrid
             days={days}
-            blocks={blocks}
+            blocks={dayBlocks}
             tasks={tasks}
             completions={completions}
             draft={drag.draft}

@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import { Trash2, X } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import type { Dict } from "../i18n";
 import { CATEGORIES, CATEGORY_DOT } from "../lib/categories";
-import { minToClock } from "../lib/date";
-import type { Block, Category, Task } from "../types";
+import { clockToMin, minToClock } from "../lib/date";
+import type { Block, Category, Task, TaskSlot } from "../types";
 
 interface TaskModalProps {
   task: Task;
@@ -41,6 +41,12 @@ export default function TaskModal({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
+
+  const schedule = task.schedule ?? [];
+  const patchSlot = (index: number, patch: Partial<TaskSlot>) =>
+    onPatch({
+      schedule: schedule.map((slot, i) => (i === index ? { ...slot, ...patch } : slot)),
+    });
 
   return (
     <div
@@ -99,6 +105,48 @@ export default function TaskModal({
           />
           <span className="text-xs text-muted">{t.taskModal.noteHint(dateLabel)}</span>
         </label>
+
+        {task.recurring && (
+          <div className="space-y-2 border-t border-line pt-4">
+            <span className="text-sm text-muted">{t.taskModal.scheduleLabel}</span>
+
+            {(task.schedule ?? []).map((slot, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <input
+                  type="time"
+                  value={minToClock(slot.start)}
+                  onChange={(e) => patchSlot(index, { start: clockToMin(e.target.value) })}
+                  className="rounded-lg border border-line bg-surface-2 p-2 text-sm outline-none focus:border-blue-500"
+                />
+                <span className="text-muted">–</span>
+                <input
+                  type="time"
+                  value={minToClock(slot.start + slot.duration)}
+                  onChange={(e) =>
+                    patchSlot(index, { duration: Math.max(15, clockToMin(e.target.value) - slot.start) })
+                  }
+                  className="rounded-lg border border-line bg-surface-2 p-2 text-sm outline-none focus:border-blue-500"
+                />
+                <button
+                  onClick={() => onPatch({ schedule: schedule.filter((_, i) => i !== index) })}
+                  aria-label={t.common.delete}
+                  className="ml-auto rounded p-1 text-muted hover:bg-surface-2"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            ))}
+
+            <button
+              onClick={() => onPatch({ schedule: [...schedule, { start: 9 * 60, duration: 60 }] })}
+              className="flex items-center gap-2 rounded-lg border border-line px-3 py-1.5 text-sm hover:bg-surface-2"
+            >
+              <Plus size={16} /> {t.taskModal.addSlot}
+            </button>
+
+            <p className="text-xs leading-relaxed text-muted">{t.taskModal.scheduleHint}</p>
+          </div>
+        )}
 
         {dayBlocks.length > 0 && (
           <div className="space-y-3 border-t border-line pt-4">

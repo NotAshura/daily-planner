@@ -6,6 +6,12 @@ export type Theme = "dark" | "light";
 export type Workspace = "work" | "private";
 export type Page = "today" | "week" | "notes" | "work" | "study" | "settings";
 
+/** A repeating time of day for a recurring task, in minutes since midnight. */
+export interface TaskSlot {
+  start: number;
+  duration: number;
+}
+
 /** A checklist item. Recurring tasks show up every day, one-off tasks only on days they are scheduled. */
 export interface Task {
   id: string;
@@ -16,6 +22,8 @@ export interface Task {
   date?: string; // yyyy-mm-dd
   /** Manual position in the checklist; lower comes first. */
   order?: number;
+  /** Times that repeat on every day, only used by recurring tasks. */
+  schedule?: TaskSlot[];
 }
 
 /** A time block in the calendar. It has no own title/colour – both come from the task. */

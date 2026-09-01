@@ -8,8 +8,8 @@ interface DailyChecklistProps {
   tasks: Task[];
   doneIds: string[];
   notes: Record<string, string>;
-  /** Start time of the first block of a task on the shown day, if any. */
-  times: Record<string, string>;
+  /** All time ranges of a task on the shown day, in clock order. */
+  ranges: Record<string, string[]>;
   t: Dict;
   onToggle: (id: string) => void;
   onAdd: (title: string) => void;
@@ -22,7 +22,7 @@ export default function DailyChecklist({
   tasks,
   doneIds,
   notes,
-  times,
+  ranges,
   t,
   onToggle,
   onAdd,
@@ -148,9 +148,13 @@ export default function DailyChecklist({
                   )}
                 </button>
 
-                {times[task.id] && (
-                  <span className="shrink-0 font-mono text-xs text-muted">{times[task.id]}</span>
-                )}
+                {ranges[task.id]?.length ? (
+                  <span className="flex shrink-0 flex-col items-end gap-0.5 font-mono text-xs text-muted">
+                    {ranges[task.id].map((range) => (
+                      <span key={range}>{range}</span>
+                    ))}
+                  </span>
+                ) : null}
               </li>
             );
           })}

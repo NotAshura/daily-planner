@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import type { Dict } from "../i18n";
 import { CATEGORY_BLOCK } from "../lib/categories";
 import { dateKey, minToClock, monthGridDays, todayKey } from "../lib/date";
+import { expandSchedule } from "../lib/schedule";
 import type { Block, Completions, Task } from "../types";
 
 interface MonthGridProps {
@@ -30,14 +31,14 @@ export default function MonthGrid({
 
   const byDay = useMemo(() => {
     const map = new Map<string, Block[]>();
-    for (const block of blocks) {
+    for (const block of expandSchedule(tasks, blocks, days.map(dateKey))) {
       const list = map.get(block.date);
       if (list) list.push(block);
       else map.set(block.date, [block]);
     }
     for (const list of map.values()) list.sort((a, b) => a.start - b.start);
     return map;
-  }, [blocks]);
+  }, [tasks, blocks, days]);
 
   return (
     <div className="overflow-hidden rounded-xl border border-line bg-surface">

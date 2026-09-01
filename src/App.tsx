@@ -9,6 +9,7 @@ import TimeTracker from "./components/TimeTracker";
 import type { DraftRange } from "./components/calendar/useCalendarDrag";
 import { dictionaries, localeOf } from "./i18n";
 import { startOfWeek, todayKey, uid } from "./lib/date";
+import { expandSchedule, parseSlotBlockId } from "./lib/schedule";
 import { usePersistentState } from "./lib/storage";
 import type {
   Absence,
@@ -178,8 +179,21 @@ export default function App() {
     setEditingTaskId(null);
   };
 
-  const createBlock = (taskId: string, date: string, start: number) =>
+  const createBlock = (taskId: string, date: string, start: number) => {
+    const task = tasks.find((entry) => entry.id === taskId);
+    // Dragging a recurring task into the plan sets a time that repeats from then on.
+    if (task?.recurring) {
+      setTasks((prev) =>
+        prev.map((entry) =>
+          entry.id === taskId
+            ? { ...entry, schedule: [...(entry.schedule ?? []), { start, duration: 30 }] }
+            : entry
+        )
+      );
+      return;
+    }
     setBlocks((prev) => [...prev, { id: uid(), taskId, date, start, duration: 30 }]);
+  };
 
   const createNotePage = () => {
     const id = uid();
@@ -196,10 +210,45 @@ export default function App() {
   const deleteNotePage = (id: string) =>
     setNotePages((prev) => prev.filter((note) => note.id !== id));
 
-  const updateBlock = (id: string, patch: Partial<Block>) =>
+  const updateBlock = (id: string, patch: Partial<Block>) => {
+    const slot = parseSlotBlockId(id);
+    // Editing a repeating slot changes the task, so it moves on every day at once.
+    if (slot) {
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === slot.taskId
+            ? {
+                ...task,
+                schedule: (task.schedule ?? []).map((entry, index) =>
+                  index === slot.index
+                    ? {
+                        start: patch.start ?? entry.start,
+                        duration: patch.duration ?? entry.duration,
+                      }
+                    : entry
+                ),
+              }
+            : task
+        )
+      );
+      return;
+    }
     setBlocks((prev) => prev.map((block) => (block.id === id ? { ...block, ...patch } : block)));
+  };
 
   const deleteBlock = (id: string) => {
+    const slot = parseSlotBlockId(id);
+    if (slot) {
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === slot.taskId
+            ? { ...task, schedule: (task.schedule ?? []).filter((_, index) => index !== slot.index) }
+            : task
+        )
+      );
+      return;
+    }
+
     const removed = blocks.find((block) => block.id === id);
     setBlocks((prev) => prev.filter((block) => block.id !== id));
     if (removed) {
@@ -398,8 +447,8 @@ export default function App() {
         <TaskModal
           task={editingTask}
           notes={notes[today] ?? {}}
-          dayBlocks={blocks
-            .filter((block) => block.taskId === editingTask.id && block.date === today)
+          dayBlocks={expandSchedule(tasks, blocks, [today])
+            .filter((block) => block.taskId === editingTask.id)
             .sort((a, b) => a.start - b.start)}
           done={(completions[today] ?? []).includes(editingTask.id)}
           dateLabel={new Date().toLocaleDateString(locale)}
