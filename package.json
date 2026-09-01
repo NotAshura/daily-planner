@@ -51,7 +51,8 @@
       {
         "provider": "github",
         "owner": "NotAshura",
-        "repo": "daily-planner"
+        "repo": "daily-planner",
+        "releaseType": "release"
       }
     ]
   },
