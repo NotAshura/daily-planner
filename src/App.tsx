@@ -21,11 +21,13 @@ import type {
   Settings,
   Task,
   WorkLog,
+  Workspace,
 } from "./types";
 
 const DEFAULT_SETTINGS: Settings = {
   lang: "de",
   theme: "dark",
+  workspace: "work",
   autoBreak: true,
   autoBreakMin: 30,
   autoBreakAfterHours: 6,
@@ -47,11 +49,16 @@ const STORAGE_PREFIX = "dailyplanner:";
 /** Only these keys are read and written by the backup, so an imported file cannot inject anything else. */
 const BACKUP_KEYS = [
   "settings",
-  "tasks",
-  "blocks",
-  "completions",
-  "notes",
-  "note-pages",
+  "work:tasks",
+  "work:blocks",
+  "work:completions",
+  "work:notes",
+  "work:note-pages",
+  "private:tasks",
+  "private:blocks",
+  "private:completions",
+  "private:notes",
+  "private:note-pages",
   "logs",
   "study-logs",
   "absences",
@@ -59,13 +66,21 @@ const BACKUP_KEYS = [
   "study-timer",
 ] as const;
 
+/** Pages that only make sense in one of the two workspaces. */
+const PAGE_WORKSPACE: Partial<Record<Page, Workspace>> = { work: "work", study: "private" };
+
 export default function App() {
   const [settings, setSettings] = usePersistentState<Settings>("settings", DEFAULT_SETTINGS);
-  const [tasks, setTasks] = usePersistentState<Task[]>("tasks", DEFAULT_TASKS);
-  const [blocks, setBlocks] = usePersistentState<Block[]>("blocks", []);
-  const [completions, setCompletions] = usePersistentState<Completions>("completions", {});
-  const [notes, setNotes] = usePersistentState<Notes>("notes", {});
-  const [notePages, setNotePages] = usePersistentState<NotePage[]>("note-pages", []);
+  const workspace = settings.workspace ?? "work";
+
+  const [tasks, setTasks] = usePersistentState<Task[]>(`${workspace}:tasks`, DEFAULT_TASKS);
+  const [blocks, setBlocks] = usePersistentState<Block[]>(`${workspace}:blocks`, []);
+  const [completions, setCompletions] = usePersistentState<Completions>(
+    `${workspace}:completions`,
+    {}
+  );
+  const [notes, setNotes] = usePersistentState<Notes>(`${workspace}:notes`, {});
+  const [notePages, setNotePages] = usePersistentState<NotePage[]>(`${workspace}:note-pages`, []);
   const [logs, setLogs] = usePersistentState<WorkLog[]>("logs", []);
   const [studyLogs, setStudyLogs] = usePersistentState<WorkLog[]>("study-logs", []);
   const [absences, setAbsences] = usePersistentState<Absence[]>("absences", []);
@@ -78,6 +93,8 @@ export default function App() {
 
   const t = dictionaries[settings.lang];
   const locale = localeOf(settings.lang);
+  // A tracker page belonging to the other workspace falls back to the day view.
+  const activePage = PAGE_WORKSPACE[page] && PAGE_WORKSPACE[page] !== workspace ? "today" : page;
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", settings.theme === "dark");
@@ -241,9 +258,13 @@ export default function App() {
   return (
     <div className="flex min-h-full bg-bg text-fg">
       <Sidebar
-        page={page}
+        page={activePage}
         onNavigate={setPage}
         t={t}
+        workspace={workspace}
+        onToggleWorkspace={() =>
+          patchSettings({ workspace: workspace === "work" ? "private" : "work" })
+        }
         lang={settings.lang}
         onToggleLang={() => patchSettings({ lang: settings.lang === "de" ? "en" : "de" })}
         theme={settings.theme}
@@ -251,7 +272,7 @@ export default function App() {
       />
 
       <main className="min-w-0 flex-1 p-4 pb-24 md:p-8 md:pb-8">
-        {page === "today" && (
+        {activePage === "today" && (
           <TodayPage
             today={today}
             checklistTasks={checklistTasks}
@@ -271,7 +292,7 @@ export default function App() {
           />
         )}
 
-        {page === "week" && (
+        {activePage === "week" && (
           <WeeklyPlanner
             tasks={tasks}
             blocks={blocks}
@@ -288,7 +309,7 @@ export default function App() {
           />
         )}
 
-        {page === "notes" && (
+        {activePage === "notes" && (
           <NotesPage
             notes={notePages}
             locale={locale}
@@ -299,7 +320,7 @@ export default function App() {
           />
         )}
 
-        {page === "work" && (
+        {activePage === "work" && (
           <TimeTracker
             variant="work"            storageKey="timer"
             title={t.work.title}
@@ -312,7 +333,7 @@ export default function App() {
           />
         )}
 
-        {page === "study" && (
+        {activePage === "study" && (
           <TimeTracker
             variant="study"
             storageKey="study-timer"
@@ -327,7 +348,7 @@ export default function App() {
           />
         )}
 
-        {page === "settings" && (
+        {activePage === "settings" && (
           <SettingsPage
             settings={settings}
             t={t}

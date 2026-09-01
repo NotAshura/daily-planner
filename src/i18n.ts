@@ -10,6 +10,12 @@ const de = {
     study: "Lernzeit",
     settings: "Einstellungen",
   },
+  workspace: {
+    work: "Arbeit",
+    private: "Privat",
+    switch: "Modus wechseln",
+    hint: "Arbeit und Privat haben getrennte Aufgaben, Termine und Notizen. Die Arbeitszeit gibt es nur im Arbeitsmodus, die Lernzeit nur im Privatmodus.",
+  },
   common: {
     close: "Schließen",
     delete: "Löschen",
@@ -197,6 +203,12 @@ const en: Dict = {
     work: "Worktime",
     study: "Study time",
     settings: "Settings",
+  },
+  workspace: {
+    work: "Work",
+    private: "Private",
+    switch: "Switch mode",
+    hint: "Work and private keep separate tasks, appointments and notes. Worktime exists only in work mode, study time only in private mode.",
   },
   common: {
     close: "Close",

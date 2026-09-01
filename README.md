@@ -5,7 +5,16 @@ React + TypeScript + Vite + Tailwind CSS v4.
 
 ## Features
 
-### 1. Tägliche Checkliste
+### 1. Arbeits- und Privatmodus
+
+- Umschalter oben in der Seitenleiste (auf dem Handy links in der unteren Leiste) zwischen **Arbeit** und **Privat**.
+- Beide Modi haben **komplett getrennte** Aufgaben, Termine, Tagesnotizen und Notizseiten.
+- **Arbeitszeit** gibt es nur im Arbeitsmodus, **Lernzeit** nur im Privatmodus.
+- Einstellungen, Design und Sprache gelten für beide.
+- Bestehende Einträge aus der Zeit vor dem Umschalter wandern automatisch in den **Arbeitsmodus**.
+- Gespeichert wird unter `dailyplanner:<modus>:<bereich>`; die Sicherung enthält beide Modi.
+
+### 2. Tägliche Checkliste
 
 - Neue Aufgaben gelten standardmäßig **nur für den heutigen Tag**. Soll die Aufgabe jeden Tag erscheinen, im Detailfenster der Aufgabe *Als tägliche Aufgabe* ankreuzen.
 - Eine Aufgabe nur für heute bleibt den ganzen Tag stehen, auch ohne Zeitblock und auch wenn das Häkchen wieder entfernt wird; am nächsten Tag ist sie weg.
@@ -14,7 +23,7 @@ React + TypeScript + Vite + Tailwind CSS v4.
 - Der Erledigt-Status wird pro Datum gespeichert, setzt sich also um Mitternacht automatisch zurück.
 - Zusätzlich zu den wiederkehrenden Aufgaben erscheinen die für diesen Tag **vorgeplanten Termine** in der Liste, jeweils mit ihrer Startzeit.
 
-### 2. Kalender / Time-Blocking
+### 3. Kalender / Time-Blocking
 
 - **Heute-Tab**: Checkliste links, Tageskalender rechts. Aufgaben lassen sich direkt aus der Checkliste in den Tagesplan ziehen – ohne Tabwechsel. Der Kalender springt beim Öffnen auf die aktuelle Uhrzeit und zeigt eine Jetzt-Linie.
 - **Kalender-Tab**: 7-Tage-Ansicht zum Vorplanen. Im Kalender einen Zeitraum aufziehen legt direkt einen neuen Termin an (Titel, Kategorie, optional als tägliche Aufgabe).
@@ -28,7 +37,7 @@ React + TypeScript + Vite + Tailwind CSS v4.
 - Raster von 15 Minuten, 06:00–24:00, Maus und Touch.
 - Ist die Aufgabe für den Tag erledigt, wird der Block ausgegraut und durchgestrichen.
 
-### 3. Notizen
+### 4. Notizen
 
 - Eigener Tab für **dauerhafte Notizen** – unabhängig von Tag und Datum, im Gegensatz zur Tagesnotiz einer Aufgabe.
 - Übersicht wie die Checkliste: jede Notiz mit Überschrift, kurzer Vorschau und Zeitpunkt der letzten Änderung.
@@ -39,7 +48,7 @@ React + TypeScript + Vite + Tailwind CSS v4.
 - Notizen liegen wie alle anderen Daten lokal und sind in der JSON-Sicherung enthalten.
 - Das Markdown wird zu React-Elementen gerendert, nicht zu HTML – Notizinhalte können also kein Markup einschleusen.
 
-### 4. Arbeitszeit-Tracker
+### 5. Arbeitszeit-Tracker
 
 - Start / Pause / Fortsetzen / Stopp, Pausenzeit wird mitgezählt.
 - Optionaler automatischer Abzug der Mittagspause (Länge und Schwelle einstellbar).
@@ -47,14 +56,14 @@ React + TypeScript + Vite + Tailwind CSS v4.
 - Auswertung für Tag, Woche, Monat sowie Urlaubs- und Krankheitstage des laufenden Jahres.
 - Export als Excel-Arbeitsmappe (SpreadsheetML) mit den Blättern Zeiten, Abwesenheiten und Zusammenfassung.
 
-### 5. Lernzeit
+### 6. Lernzeit
 
 - Eigener Tab mit denselben Funktionen wie die Arbeitszeit: Timer, Pause, Zeitnachweis, Tages-/Wochen-/Monatsauswertung, Excel-Export.
 - **Kein automatischer Pausenabzug** – abgezogen wird nur, was du selbst als Pause drückst.
 - Eigene Datenablage, die Zeiten vermischen sich nicht mit der Arbeitszeit.
 - Keine Urlaubs-/Krankheitstage, da es sich um private Lernzeit handelt.
 
-### 6. Rahmenbedingungen
+### 7. Rahmenbedingungen
 
 - **Desktop-App (Windows)**: als echte `.exe` mit eigenem Icon installierbar und an die Taskleiste anheftbar.
 - **PWA**: installierbar auf Handy und Desktop, offlinefähig über Service Worker.
@@ -117,7 +126,9 @@ $env:GH_TOKEN = "..."    # Token nur im eigenen Terminal setzen, niemals ins Rep
 npm run release
 ```
 
-Das baut die App und lädt Installer, Portable-Exe und `latest.yml` als GitHub-Release hoch. `latest.yml` ist die Datei, an der die installierten Apps erkennen, dass es etwas Neues gibt – sie muss immer mit hochgeladen werden, deshalb `npm run release` statt manuellem Upload verwenden.
+Das baut die App und lädt Installer, Blockmap und `latest.yml` als GitHub-Release hoch. `latest.yml` ist die Datei, an der die installierten Apps erkennen, dass es etwas Neues gibt – sie muss immer mit hochgeladen werden, deshalb `npm run release` statt manuellem Upload verwenden.
+
+`release` baut bewusst **nur den Installer** (`--win nsis`). Würden Installer und Portable-Exe gemeinsam veröffentlicht, legen beide Ziele gleichzeitig ein GitHub-Release an, die Dateien landen in zwei unvollständigen Releases und die Update-Prüfung schlägt fehl. Die Portable-Exe entsteht weiterhin bei `npm run app:build` und kann bei Bedarf von Hand an ein Release gehängt werden; automatisch aktualisieren kann sich ohnehin nur die installierte Variante.
 
 Die Versionsnummer **muss** vor jedem Release steigen, sonst erkennt keine installierte App das Update.
 

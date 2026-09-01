@@ -15,7 +15,7 @@
     "icons": "node scripts/generate-icons.mjs",
     "app": "npm run build && electron .",
     "app:build": "npm run build && electron-builder",
-    "release": "npm run build && electron-builder --publish always"
+    "release": "npm run build && electron-builder --win nsis --publish always"
   },
   "build": {
     "appId": "de.local.dailyplanner",

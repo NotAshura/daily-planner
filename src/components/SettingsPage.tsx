@@ -45,7 +45,7 @@ export default function SettingsPage({
       case "installing":
         return t.settings.updateInstalling;
       case "error":
-        return t.settings.updateError;
+        return update.message ? `${t.settings.updateError} (${update.message})` : t.settings.updateError;
       case "unsupported":
         return t.settings.updateUnsupported;
       default:
@@ -99,6 +99,28 @@ export default function SettingsPage({
             {themeButton("light", t.settings.light, Sun)}
           </div>
         </div>
+      </section>
+
+      <section className="space-y-4 rounded-xl border border-line bg-surface p-5">
+        <h3 className="font-semibold">{t.workspace.switch}</h3>
+
+        <div className="flex flex-wrap gap-2">
+          {(["work", "private"] as const).map((value) => (
+            <button
+              key={value}
+              onClick={() => onChange({ workspace: value })}
+              className={`rounded-lg border px-3 py-2 text-sm ${
+                (settings.workspace ?? "work") === value
+                  ? "border-blue-500 bg-blue-500/10"
+                  : "border-line hover:bg-surface-2"
+              }`}
+            >
+              {t.workspace[value]}
+            </button>
+          ))}
+        </div>
+
+        <p className="text-xs leading-relaxed text-muted">{t.workspace.hint}</p>
       </section>
 
       <section className="space-y-4 rounded-xl border border-line bg-surface p-5">

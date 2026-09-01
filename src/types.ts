@@ -2,6 +2,8 @@ export type Category = "work" | "training" | "learning" | "leisure" | "other";
 
 export type Lang = "de" | "en";
 export type Theme = "dark" | "light";
+/** Separate data sets: work has the worktime tracker, private the study tracker. */
+export type Workspace = "work" | "private";
 export type Page = "today" | "week" | "notes" | "work" | "study" | "settings";
 
 /** A checklist item. Recurring tasks show up every day, one-off tasks only on days they are scheduled. */
@@ -42,6 +44,7 @@ export interface Absence {
 export interface Settings {
   lang: Lang;
   theme: Theme;
+  workspace: Workspace;
   autoBreak: boolean;
   autoBreakMin: number;
   autoBreakAfterHours: number;
