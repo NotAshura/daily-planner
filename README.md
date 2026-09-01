@@ -85,7 +85,9 @@ Bricht `app:build` mit `EPERM: operation not permitted, rename ... win-unpacked.
 
 ## Automatische Updates
 
-Die Desktop-App prüft 5 Sekunden nach dem Start und danach alle 6 Stunden, ob es eine neuere Version gibt. Gefundene Updates werden im Hintergrund geladen und beim nächsten Beenden installiert. Schlägt die Prüfung fehl (kein Netz, kein Release), läuft die App normal weiter. Die aktuell installierte Version steht in den Einstellungen unter *Über*.
+Die Desktop-App prüft 5 Sekunden nach dem Start und danach alle 6 Stunden, ob es eine neuere Version gibt. Gefunden heißt aber nicht installiert: In den **Einstellungen › Über** steht ein Knopf *Nach Updates suchen*. Findet er eine neue Version, erscheint *Update herunterladen* mit Fortschrittsanzeige und danach *Installieren & neu starten* – die App beendet sich, spielt das Update ein und startet neu. Schlägt die Prüfung fehl (kein Netz, kein Release), läuft die App normal weiter. Die aktuell installierte Version steht ebenfalls unter *Über*.
+
+Im Browser und in der PWA ist der Bereich ausgeblendet, dort aktualisiert der Service Worker.
 
 ### Einmalig einrichten
 
@@ -183,6 +185,7 @@ Installierbarkeit `npm run build` und anschließend `npm run preview` verwenden.
 ```
 electron/
   main.cjs                   Desktop-Fenster, lädt dist/ über app://
+  preload.cjs                Brücke für Update-Prüfung (nur diese vier Aufrufe)
 scripts/
   generate-icons.mjs         Icons aus public/app-icon.svg
 src/

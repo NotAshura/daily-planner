@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, net, protocol, shell } = require("electron");
+const { app, BrowserWindow, Menu, ipcMain, net, protocol, shell } = require("electron");
 const { autoUpdater } = require("electron-updater");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -11,15 +11,59 @@ const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 // Auf false setzen, wenn die App ohne Update-Prüfung laufen soll.
 const AUTO_UPDATE_ENABLED = true;
 
+function sendStatus(status) {
+  for (const win of BrowserWindow.getAllWindows()) win.webContents.send("updater:status", status);
+}
+
+function registerUpdaterIpc() {
+  // Downloads only start when the user asks for them in the settings.
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.on("error", (error) => sendStatus({ state: "error", message: error.message }));
+  autoUpdater.on("update-available", (info) =>
+    sendStatus({ state: "available", version: info.version })
+  );
+  autoUpdater.on("download-progress", (progress) =>
+    sendStatus({ state: "downloading", percent: Math.round(progress.percent) })
+  );
+  autoUpdater.on("update-downloaded", (info) =>
+    sendStatus({ state: "downloaded", version: info.version })
+  );
+
+  ipcMain.handle("updater:check", async () => {
+    if (!app.isPackaged || !AUTO_UPDATE_ENABLED) return { state: "unsupported" };
+    try {
+      const result = await autoUpdater.checkForUpdates();
+      const version = result?.updateInfo?.version;
+      const available = result?.isUpdateAvailable ?? (version && version !== app.getVersion());
+      return available ? { state: "available", version } : { state: "latest", version: app.getVersion() };
+    } catch (error) {
+      return { state: "error", message: error.message };
+    }
+  });
+
+  ipcMain.handle("updater:download", async () => {
+    if (!app.isPackaged || !AUTO_UPDATE_ENABLED) return { state: "unsupported" };
+    try {
+      await autoUpdater.downloadUpdate();
+      return { state: "downloaded" };
+    } catch (error) {
+      return { state: "error", message: error.message };
+    }
+  });
+
+  ipcMain.handle("updater:install", () => {
+    if (!app.isPackaged || !AUTO_UPDATE_ENABLED) return { state: "unsupported" };
+    setImmediate(() => autoUpdater.quitAndInstall());
+    return { state: "installing" };
+  });
+}
+
 function startUpdateChecks() {
   if (!app.isPackaged || !AUTO_UPDATE_ENABLED) return;
 
-  autoUpdater.autoDownload = true;
-  autoUpdater.autoInstallOnAppQuit = true;
-  // A missing release or no network must never surface as a crash dialog.
-  autoUpdater.on("error", () => {});
-
-  const check = () => void autoUpdater.checkForUpdatesAndNotify().catch(() => {});
+  // Only notifies; installing stays a decision in the settings.
+  const check = () => void autoUpdater.checkForUpdates().catch(() => {});
   setTimeout(check, UPDATE_CHECK_DELAY_MS);
   setInterval(check, UPDATE_CHECK_INTERVAL_MS);
 }
@@ -50,6 +94,7 @@ function createWindow() {
     autoHideMenuBar: true,
     icon: path.join(__dirname, "..", "build", "icon.png"),
     webPreferences: {
+      preload: path.join(__dirname, "preload.cjs"),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
@@ -89,6 +134,7 @@ if (!app.requestSingleInstanceLock()) {
     });
 
     createWindow();
+    registerUpdaterIpc();
     startUpdateChecks();
 
     app.on("activate", () => {

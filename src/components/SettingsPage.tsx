@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { Download, Moon, Sun, Trash2, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Download, Moon, RefreshCw, Sun, Trash2, Upload } from "lucide-react";
 import type { Dict } from "../i18n";
 import type { Lang, Settings, Theme } from "../types";
 
@@ -25,6 +25,35 @@ export default function SettingsPage({
   onInstall,
 }: SettingsPageProps) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const updater = window.plannerUpdater;
+  const [update, setUpdate] = useState<UpdateStatus>({ state: "idle" });
+
+  useEffect(() => updater?.onStatus(setUpdate), [updater]);
+
+  const updateMessage = (() => {
+    switch (update.state) {
+      case "checking":
+        return t.settings.updateChecking;
+      case "available":
+        return t.settings.updateAvailable(update.version ?? "?");
+      case "latest":
+        return t.settings.updateLatest;
+      case "downloading":
+        return t.settings.updateDownloading(update.percent ?? 0);
+      case "downloaded":
+        return t.settings.updateDownloaded;
+      case "installing":
+        return t.settings.updateInstalling;
+      case "error":
+        return t.settings.updateError;
+      case "unsupported":
+        return t.settings.updateUnsupported;
+      default:
+        return null;
+    }
+  })();
+
+  const busy = update.state === "checking" || update.state === "downloading";
 
   const themeButton = (value: Theme, label: string, Icon: typeof Sun) => (
     <button
@@ -196,6 +225,49 @@ export default function SettingsPage({
         <p className="text-sm">
           {t.settings.version} <span className="font-mono">{__APP_VERSION__}</span>
         </p>
+
+        {updater && (
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <button
+              onClick={() => {
+                setUpdate({ state: "checking" });
+                void updater.check().then(setUpdate);
+              }}
+              disabled={busy}
+              className="flex items-center gap-2 rounded-lg border border-line px-4 py-2 text-sm hover:bg-surface-2 disabled:opacity-50"
+            >
+              <RefreshCw size={16} className={update.state === "checking" ? "animate-spin" : ""} />
+              {t.settings.checkUpdate}
+            </button>
+
+            {update.state === "available" && (
+              <button
+                onClick={() => {
+                  setUpdate({ state: "downloading", percent: 0 });
+                  void updater.download().then(setUpdate);
+                }}
+                className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+              >
+                <Download size={16} /> {t.settings.downloadUpdate}
+              </button>
+            )}
+
+            {update.state === "downloaded" && (
+              <button
+                onClick={() => {
+                  setUpdate({ state: "installing" });
+                  void updater.install();
+                }}
+                className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700"
+              >
+                <RefreshCw size={16} /> {t.settings.installUpdate}
+              </button>
+            )}
+          </div>
+        )}
+
+        {updateMessage && <p className="text-sm text-muted">{updateMessage}</p>}
+
         <p className="text-xs leading-relaxed text-muted">{t.settings.updateHint}</p>
       </section>
     </div>

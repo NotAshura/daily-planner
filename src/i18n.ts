@@ -170,8 +170,19 @@ const de = {
     installed: "Bereits installiert",
     about: "Über",
     version: "Version",
+    checkUpdate: "Nach Updates suchen",
+    downloadUpdate: "Update herunterladen",
+    installUpdate: "Installieren & neu starten",
+    updateChecking: "Suche nach Updates …",
+    updateLatest: "Du hast bereits die neueste Version.",
+    updateAvailable: (version: string) => `Version ${version} ist verfügbar.`,
+    updateDownloading: (percent: number) => `Wird geladen … ${percent} %`,
+    updateDownloaded: "Update geladen. Die App startet beim Installieren neu.",
+    updateInstalling: "Wird installiert …",
+    updateError: "Update fehlgeschlagen. Später noch einmal versuchen.",
+    updateUnsupported: "Updates gibt es nur in der installierten Desktop-App.",
     updateHint:
-      "Die Desktop-App prüft beim Start automatisch auf Updates und installiert sie beim nächsten Beenden.",
+      "Die Desktop-App prüft beim Start automatisch auf Updates. Installiert wird erst, wenn du es hier bestätigst.",
   },
 };
 
@@ -347,8 +358,19 @@ const en: Dict = {
     installed: "Already installed",
     about: "About",
     version: "Version",
+    checkUpdate: "Check for updates",
+    downloadUpdate: "Download update",
+    installUpdate: "Install & restart",
+    updateChecking: "Checking for updates …",
+    updateLatest: "You already have the latest version.",
+    updateAvailable: (version: string) => `Version ${version} is available.`,
+    updateDownloading: (percent: number) => `Downloading … ${percent}%`,
+    updateDownloaded: "Update downloaded. The app restarts when installing.",
+    updateInstalling: "Installing …",
+    updateError: "Update failed. Please try again later.",
+    updateUnsupported: "Updates are only available in the installed desktop app.",
     updateHint:
-      "The desktop app checks for updates on startup and installs them the next time you quit.",
+      "The desktop app checks for updates on startup. Nothing is installed until you confirm it here.",
   },
 };
 
