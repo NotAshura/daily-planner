@@ -120,17 +120,49 @@ Ohne Repo oder ohne Netz schlägt die Prüfung still fehl, die App läuft normal
 
 ### Neue Version veröffentlichen
 
+Immer in dieser Reihenfolge, die letzte Zeile ist die Abnahme:
+
 ```powershell
-npm version patch        # 0.1.0 -> 0.1.1 (oder minor / major)
-$env:GH_TOKEN = "..."    # Token nur im eigenen Terminal setzen, niemals ins Repo
+# 1. Alles committet? Daily-Planner-App geschlossen?
+git status --short
+
+# 2. Version erhöhen (erzeugt Commit + Tag)
+npm version patch        # 0.1.4 -> 0.1.5 (oder minor / major)
+git push --follow-tags
+
+# 3. Token nur für dieses Fenster setzen, Eingabe bleibt unsichtbar
+$sec = Read-Host "GitHub-Token" -AsSecureString
+$env:GH_TOKEN = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec))
+
+# 4. Bauen und veröffentlichen
 npm run release
+
+# 5. Kontrolle – muss "Release vollständig" melden
+npm run release:check
 ```
 
-Das baut die App und lädt Installer, Blockmap und `latest.yml` als GitHub-Release hoch. `latest.yml` ist die Datei, an der die installierten Apps erkennen, dass es etwas Neues gibt – sie muss immer mit hochgeladen werden, deshalb `npm run release` statt manuellem Upload verwenden.
+Bricht Schritt 4 beim Hochladen ab (die `.exe` ist über 100 MB, das scheitert in unruhigen Netzen gelegentlich), reicht ein Wiederholen des Uploads **ohne neuen Build**:
 
-`release` baut bewusst **nur den Installer** (`--win nsis`). Würden Installer und Portable-Exe gemeinsam veröffentlicht, legen beide Ziele gleichzeitig ein GitHub-Release an, die Dateien landen in zwei unvollständigen Releases und die Update-Prüfung schlägt fehl. Die Portable-Exe entsteht weiterhin bei `npm run app:build` und kann bei Bedarf von Hand an ein Release gehängt werden; automatisch aktualisieren kann sich ohnehin nur die installierte Variante.
+```powershell
+npm run release:upload
+```
 
-Die Versionsnummer **muss** vor jedem Release steigen, sonst erkennt keine installierte App das Update.
+**Was dabei passiert und warum es so gebaut ist**
+
+- `npm run release` baut nur das Installer-Ziel (`--win nsis --publish never`) und übergibt danach an [scripts/publish-release.mjs](scripts/publish-release.mjs).
+- Das Skript schreibt `latest.yml` selbst (Version, Größe, SHA-512 des Installers), legt bei Bedarf das GitHub-Release an, lädt Installer, Blockmap und `latest.yml` hoch – mit drei Versuchen je Datei – und prüft am Ende, ob wirklich alles am Release hängt. Fehlt etwas, endet der Befehl mit einem Fehler.
+- Der Upload läuft bewusst **nicht** mehr über `electron-builder --publish always`: Dort legten Installer- und Portable-Ziel gleichzeitig je ein Release an, die Dateien verteilten sich auf zwei unvollständige Einträge, und wenn der große Upload scheiterte, wurde `latest.yml` gar nicht erst geschrieben. Genau daran sind die Releases 0.1.2 bis 0.1.4 gescheitert.
+
+**Ein Release ist nur dann brauchbar, wenn es diese zwei Dateien enthält:**
+
+| Datei | Wofür |
+| --- | --- |
+| `Daily-Planner-Setup-<version>.exe` | die eigentliche Installation |
+| `latest.yml` | daran erkennen installierte Apps, dass es etwas Neues gibt |
+
+Die `.blockmap` ist optional (nur für schnellere Teil-Downloads). Fehlt `latest.yml`, meldet der Update-Knopf „Update fehlgeschlagen". Deshalb immer `npm run release:check` laufen lassen, bevor du das Release als erledigt betrachtest.
+
+Die Portable-Exe entsteht weiterhin bei `npm run app:build` und wird bewusst nicht mit veröffentlicht – automatisch aktualisieren kann sich ohnehin nur die installierte Variante.
 
 ### Was nicht ins Repo gehört
 
@@ -178,6 +210,8 @@ npm run preview  # Produktionsbuild lokal testen (inkl. Service Worker)
 npm run app      # Build + Desktop-App starten
 npm run app:build# Windows-Installer und Portable-Exe nach release/ bauen
 npm run release  # Build + Veröffentlichung als GitHub-Release
+npm run release:upload # Upload wiederholen, ohne neu zu bauen
+npm run release:check  # Prüfen, ob das Release vollständig ist
 npm run lint     # ESLint
 npm run icons    # Icons aus public/app-icon.svg neu generieren
 ```
@@ -199,6 +233,8 @@ electron/
   preload.cjs                Brücke für Update-Prüfung (nur diese vier Aufrufe)
 scripts/
   generate-icons.mjs         Icons aus public/app-icon.svg
+  publish-release.mjs        latest.yml schreiben und Release-Dateien hochladen
+  check-release.mjs          Prüft, ob ein Release alle nötigen Dateien hat
 src/
   App.tsx                    App-Shell, Zustand und Navigation
   types.ts                   Datenmodell
