@@ -1,7 +1,7 @@
 {
   "name": "dailyplanner",
   "private": true,
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Tägliche Checkliste, Time-Blocking-Kalender und Arbeits-/Lernzeit-Tracker.",
   "author": "Daily Planner",
   "license": "MIT",
