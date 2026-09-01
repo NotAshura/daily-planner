@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "description": "Tägliche Checkliste, Time-Blocking-Kalender und Arbeits-/Lernzeit-Tracker.",
   "author": "Daily Planner",
+  "license": "MIT",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {

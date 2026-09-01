@@ -213,3 +213,7 @@ src/
       CalendarGrid.tsx       Stundenraster mit Tagesspalten und Blöcken
       DragGhost.tsx          Vorschau am Mauszeiger beim Ziehen
 ```
+
+## Lizenz
+
+[MIT](LICENSE) – nutzen, ändern und weitergeben erlaubt, ohne Gewährleistung.
